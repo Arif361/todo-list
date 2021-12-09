@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>web page</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
+<body>
+
+    <div class="box1" id="heading">
+
+        <h1>Todo List</h1>
+
+    </div>
+
+    <div class="box">
+        <div class="pading_list">
+            <ul id="p">
+                {{#each result}}
+                <li>{{this.name}} <input type="button" class="delte" value="delete"> <input type="button" class="update"
+                        value="update"> </li>
+
+                {{/each}}
+
+
+            </ul>
+            <p id="msg"> </p>
+            <input type="text" id="inputName" placeholder="Add Your New Task">
+            <hr>
+
+            <div class="dlex_btn">
+                <button id="b"><span id="s1">Submit</span></button>
+                <button id="bt"><span id="s3">Remove</span></button>
+                <button id="btn"><span id="s2">Add</span></button>
+            </div>
+
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            var nameArr = [];
+            $(document).ready(function () {
+                $('#b').click(function () {
+                    nameArr.forEach(function (element) {
+                        $.ajax({
+                            url: '/',
+                            method: 'post',
+                            data: { name: element },
+                            dataType: 'json',
+                            success: function (success) {
+                                if (success && success.success)
+                                    $("#msg").text(success.msg)
+                                else $("#msg").text(success.msg)
+                            },
+                            error: function (error) {
+                                console.log(error);
+                            }
+
+                        })
+
+                    })
+
+                    setTimeout(function () {
+                        location.reload()
+                    }, 1000)
+
+                })
+
+                $("#btn").click(function () {
+                    var name = $('#inputName').val();
+                    nameArr.push(name)
+                    if (name != "") {
+                        let string = '';
+                        let para = $('#p').text();
+                        string += name;
+                        $("#p").append('<li onclick="deleteName(\'' + string + '\')" id="removeString' + string + '"> ' + string + ' <button type="button" class="delte" id="delete">Delete</button></li>');
+                    }
+
+                    $('#inputName').val('');
+                    console.log(name)
+
+                });
+
+
+
+                $("#bt").click(function () {
+                    var name = $("#inputName").val();
+                    $("#p").empty(nameArr.splice(name));
+                })
+                $('#p li input[value="delete"]').click(function () {
+                    let value = ($(this).parent().text())
+
+                    $.ajax({
+                        url: '/',
+                        method: 'delete',
+                        data: { name: value },
+                        dataType: 'json',
+                        success: function () {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    })
+                })
+                $("#p li input[value='update']").click(function () {
+                    let id = ($(this).parent().text())
+                    var name = $("#inputName").val();
+                    console.log(name)
+
+                    $.ajax({
+                    url: '/',
+                    method: 'patch',
+                    data: { id: id, name: name },
+                    dataType: 'json',
+                    success: function () {
+                        location.reload();
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+
+                location.reload();
+               
+                })
+             
+            })
+
+            function deleteName(str) {
+                let index = nameArr.indexOf(str)
+                nameArr.splice(index, 1)
+                $('#removeString' + str).remove();
+            }
+
+        </script>
+</body>
+
+</html>
